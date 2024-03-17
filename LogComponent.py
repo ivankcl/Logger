@@ -33,7 +33,6 @@ class LogComponent():
     def stop(self, wait_for_outstanding_log: bool = True):
 
         try:
-        
             if (not self.stop_event.is_set()):
                 if (wait_for_outstanding_log):
 
