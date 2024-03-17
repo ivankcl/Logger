@@ -7,14 +7,16 @@ import queue
 
 class LogComponent():
 
-    log_folder_path = 'Log'
 
-    def __init__(self):
+    def __init__(self, log_folder_path: str = 'Log'):
+
+        if not os.path.exists(log_folder_path):
+            os.makedirs(log_folder_path)
+
+        self.log_folder_path = log_folder_path
+
         self.message_queue = queue.Queue()
         self.running = True
-        if not os.path.exists(self.log_folder_path):
-            os.makedirs(self.log_folder_path)
-
         self.background_thread = threading.Thread(target=self._background_writing)
         self.background_thread.start()
 
@@ -37,12 +39,16 @@ class LogComponent():
                     self._write_to_file(message)
                 except queue.Empty:
                     pass # Do nothing if the queue is empty
-
-    def _write_to_file(self, message: str):
+    
+    def _get_file_path(self):
         log_name = f'log_{datetime.now().strftime("%Y%m%d")}.txt'
         log_path = os.path.join(self.log_folder_path, log_name)
+        return log_path
+
+    def _write_to_file(self, message: str):
+        log_path = self._get_file_path()
         with open(log_path, "a") as file:
-            file.write(message + '\n')
+            file.write(message)
         
 if __name__ == '__main__':
     logComponent = LogComponent()
