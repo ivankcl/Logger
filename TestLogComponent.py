@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime
 from freezegun import freeze_time
 import time 
+import os
 
 from LogComponent import LogComponent
 
@@ -47,6 +48,8 @@ class TestLogComponent(unittest.TestCase):
             messages = file.readlines()
             self.assertEqual(test_message_before, messages[-1])
 
+        self.assertEqual(os.path.join(logger.log_folder_path, 'log_20240317.txt'), log_path_before)
+
         logger.stop()
 
     @freeze_time(datetime(2024, 3, 18, 0, 0, 0))
@@ -66,7 +69,41 @@ class TestLogComponent(unittest.TestCase):
             messages = file.readlines()
             self.assertEqual(test_message_after, messages[-1])
 
+        self.assertEqual(os.path.join(logger.log_folder_path, 'log_20240318.txt'), log_path_after)
+
         logger.stop()
+
+    def test_stop_with_wait(self):
+        test_message = 'Test: !\"#$%&\'()*+,-./0123456789:;<=>?@\n'
+        test_message_2 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+        log_path = self.logger._get_file_path()
+
+        for _ in range(10):
+            self.logger.write('\n')
+            self.logger.write(test_message)
+            self.logger.write(test_message_2)
+
+        remaining_message = self.logger.stop(wait_for_outstanding_log=True)
+
+        self.assertFalse(self.logger.background_thread.is_alive())
+        self.assertEqual(len(remaining_message), 0)
+        with open(log_path, 'r') as file:
+            messages = file.readlines()
+            self.assertEqual(test_message, messages[-2])
+            self.assertEqual(test_message_2, messages[-1])
+
+    def test_stop_without_wait(self):
+        test_message = 'Test: !\"#$%&\'()*+,-./0123456789:;<=>?@\n'
+        test_message_2 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+        # log_path = self.logger._get_file_path()
+
+        self.logger.write('\n')
+        self.logger.write(test_message)
+        self.logger.write(test_message_2)
+
+        self.logger.stop(wait_for_outstanding_log=False)
+        self.assertFalse(self.logger.background_thread.is_alive())
+
 
 
 if __name__ == '__main__':

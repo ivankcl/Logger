@@ -24,12 +24,16 @@ class LogComponent():
         self.message_queue.put(message)
 
     def stop(self, wait_for_outstanding_log: bool = True):
-        if (wait_for_outstanding_log):
-            while (not self.message_queue.empty()):
-                time.sleep(0.1)
+        
+        if (self.running):
+            if (wait_for_outstanding_log):
+                while (not self.message_queue.empty()):
+                    time.sleep(0.1)
 
-        self.running = False
-        self.background_thread.join()
+            self.running = False
+            self.background_thread.join()
+
+        return list(self.message_queue.queue)
 
     def _background_writing(self):
         while (self.running):
