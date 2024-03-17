@@ -20,10 +20,13 @@ class LogComponent():
     def write(self, message: str):
         self.message_queue.append(message)
 
-    def stop(self, wait_for_outstanding_log = True):
+    def stop(self, wait_for_outstanding_log: bool = True):
+        if (wait_for_outstanding_log):
+            while (self.message_queue):
+                time.sleep(0.1)
+
         self.running = False
         self.background_thread.join()
-
 
     def _background_writing(self):
         while (self.running):
@@ -43,6 +46,4 @@ if __name__ == '__main__':
     logComponent = LogComponent()
     for _ in range(10):
         logComponent.write('Hello World')
-    
-    time.sleep(5)
     logComponent.stop()
