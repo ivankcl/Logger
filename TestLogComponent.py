@@ -95,7 +95,6 @@ class TestLogComponent(unittest.TestCase):
     def test_stop_without_wait(self):
         test_message = 'Test: !\"#$%&\'()*+,-./0123456789:;<=>?@\n'
         test_message_2 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-        # log_path = self.logger._get_file_path()
 
         self.logger.write('\n')
         self.logger.write(test_message)
@@ -104,9 +103,5 @@ class TestLogComponent(unittest.TestCase):
         self.logger.stop(wait_for_outstanding_log=False)
         self.assertFalse(self.logger.background_thread.is_alive())
 
-
-
 if __name__ == '__main__':
     unittest.main()
-
-        
